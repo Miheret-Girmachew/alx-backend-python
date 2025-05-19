@@ -27,11 +27,8 @@ def paginate_users(page_size, offset):
         connection = connect_to_prodev_for_paginate()
         if connection:
             cursor = connection.cursor(dictionary=True)
-            query_base = "SELECT * FROM user_data"
-            query_suffix = f" ORDER BY user_id LIMIT {page_size} OFFSET {offset}"
-            query = query_base + query_suffix
             
-            cursor.execute(query)
+            cursor.execute(f"SELECT * FROM user_data ORDER BY user_id LIMIT {page_size} OFFSET {offset}")
             rows = cursor.fetchall()
             cursor.close()
         else:
