@@ -8,7 +8,7 @@ DB_USER = os.getenv('ALX_MYSQL_USER', 'your_mysql_user')
 DB_PASSWORD = os.getenv('ALX_MYSQL_PASSWORD', 'your_mysql_password')
 DB_NAME = "ALX_prodev"
 
-def connect_to_prodev_for_paginate():
+def local_connect_to_prodev():
     try:
         connection = mysql.connector.connect(
             host=DB_HOST,
@@ -24,16 +24,14 @@ def paginate_users(page_size, offset):
     connection = None
     rows = []
     try:
-        connection = connect_to_prodev_for_paginate()
+        connection = local_connect_to_prodev()
         if connection:
             cursor = connection.cursor(dictionary=True)
-            
-            cursor.execute(f"SELECT * FROM user_data ORDER BY user_id LIMIT {page_size} OFFSET {offset}")
+            cursor.execute(f"SELECT * FROM user_data LIMIT {page_size} OFFSET {offset}")
             rows = cursor.fetchall()
             cursor.close()
         else:
             print("paginate_users: Failed to establish database connection.", file=sys.stderr)
-
     except mysql.connector.Error as err:
         print(f"paginate_users: Database error: {err}", file=sys.stderr)
     except ConnectionError as cerr:
