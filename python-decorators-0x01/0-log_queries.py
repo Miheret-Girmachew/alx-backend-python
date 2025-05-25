@@ -86,15 +86,14 @@ def add_user(name, email, query_template="INSERT INTO users (name, email) VALUES
     """Adds a new user to the database.
     The query is constructed or passed.
     """
-
-
     conn = None
     try:
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
         actual_data = data if data else (name, email)
-       
-        pass 
+        cursor.execute(query_template, actual_data)
+        conn.commit()
+        print(f"User '{name}' added successfully.")
     except sqlite3.Error as e:
         print(f"Database error in add_user: {e}")
     finally:
