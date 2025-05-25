@@ -1,9 +1,10 @@
+#!/usr/bin/python3
 """
 Module to demonstrate a decorator for logging SQL queries.
 """
 import sqlite3
 import functools
-import datetime 
+from datetime import datetime 
 
 DB_NAME = 'users.db'
 TABLE_NAME = 'users'
@@ -44,20 +45,20 @@ def log_queries(func):
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
+    
         query_to_log = None
         if args: 
             if 'query' in kwargs:
                 query_to_log = kwargs['query']
-            else:
                 query_to_log = args[0] 
         elif 'query' in kwargs:
             query_to_log = kwargs['query']
         
         if query_to_log:
-            timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print(f"[{timestamp}] LOG: Executing Query: \"{query_to_log}\" in function '{func.__name__}'")
         else:
-            timestamp = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
             print(f"[{timestamp}] LOG: Executing function '{func.__name__}' (No query argument found to log specifically)")
 
         result = func(*args, **kwargs)
@@ -71,7 +72,7 @@ def fetch_all_users(query):
     try:
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
-        cursor.execute(query) 
+        cursor.execute(query)
         results = cursor.fetchall()
         return results
     except sqlite3.Error as e:
@@ -86,14 +87,15 @@ def add_user(name, email, query_template="INSERT INTO users (name, email) VALUES
     """Adds a new user to the database.
     The query is constructed or passed.
     """
+
     conn = None
     try:
         conn = sqlite3.connect(DB_NAME)
         cursor = conn.cursor()
-        actual_data = data if data else (name, email)
-        cursor.execute(query_template, actual_data)
+        
+        actual_data_tuple = data if data else (name, email)
+        cursor.execute(query_template, actual_data_tuple)
         conn.commit()
-        print(f"User '{name}' added successfully.")
     except sqlite3.Error as e:
         print(f"Database error in add_user: {e}")
     finally:
@@ -105,7 +107,7 @@ if __name__ == "__main__":
     setup_database() 
     
     print("\n--- Fetching users (decorator should log the query) ---")
-    users = fetch_all_users(query="SELECT * FROM users")
+    users = fetch_all_users(query="SELECT * FROM users") 
     if users:
         print("Fetched users:")
         for user in users:
