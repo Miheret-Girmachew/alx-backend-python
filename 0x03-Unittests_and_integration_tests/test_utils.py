@@ -1,45 +1,66 @@
 #!/usr/bin/env python3
 """
-Utility functions.
+Unit tests for utils.access_nested_map and other utility functions.
 """
-from typing import Mapping, Sequence, Any, Union, TypeVar
+import unittest
+from parameterized import parameterized # No need for parameterized_class for this task
+from utils import access_nested_map # Assuming utils.py is accessible
+from typing import Mapping, Sequence, Any, Type # Added Type for exception type hint
 
-KT = TypeVar('KT')  # Key type
-VT = TypeVar('VT')  # Value type
 
-def access_nested_map(nested_map: Mapping[KT, Any], path: Sequence[KT]) -> Union[Any, None]:
+class TestAccessNestedMap(unittest.TestCase):
     """
-    Access a value in a nested dictionary-like structure using a sequence of keys.
-
-    Args:
-        nested_map (Mapping): The nested dictionary or map.
-        path (Sequence): A sequence (e.g., tuple) of keys representing the path
-                         to the desired value.
-
-    Returns:
-        Any: The value found at the end of the path.
-    Raises:
-        KeyError: If any key in the path is not found in the current mapping.
-        TypeError: If a value along the path is not a mapping and further sub-keys are accessed.
+    Test suite for the `access_nested_map` function from the `utils` module.
     """
-    current_value = nested_map
-    for key in path:
-        # Check if current_value is a mapping *before* trying to access the key
-        if not isinstance(current_value, Mapping):
-            # This case is what the task describes for nested_map={"a": 1}, path=("a", "b")
-            # The task specifies this should raise KeyError.
-            # Standard dict access on a non-dict raises TypeError if you try `non_dict[key]`.
-            # To strictly meet the "KeyError" requirement for path=("a", "b") on nested_map={"a": 1},
-            # the function would need to handle this slightly differently or the task implies
-            # that attempting to access a sub-key on a non-mapping due to path exhaustion is a type of KeyError.
-            # For standard Python dicts, `1['b']` would be a TypeError.
-            # Let's adjust the logic to raise KeyError as specified for the second test case.
-            # The most straightforward interpretation for the task is that if a key in the path
-            # cannot be resolved (either because it's missing OR because its parent is not a map),
-            # it's a KeyError related to that key.
-            raise KeyError(key) # This makes it fit the task's expectation for the second case
 
-        if key not in current_value:
-            raise KeyError(key) # Standard KeyError for missing key
-        current_value = current_value[key]
-    return current_value
+    @parameterized.expand([
+        ({"a": 1}, ("a",), 1),
+        ({"a": {"b": 2}}, ("a",), {"b": 2}),
+        ({"a": {"b": 2}}, ("a", "b"), 2),
+    ])
+    def test_access_nested_map(
+            self,
+            nested_map: Mapping,
+            path: Sequence,
+            expected_output: Any
+    ) -> None:
+        """
+        Tests that `access_nested_map` returns the correct output for various inputs.
+        """
+        self.assertEqual(access_nested_map(nested_map, path), expected_output)
+
+    @parameterized.expand([
+        # Input 1: nested_map={}, path=("a",)
+        # Expected: KeyError with a message containing 'a'
+        ({}, ("a",), "a"),
+
+        # Input 2: nested_map={"a": 1}, path=("a", "b")
+        # Expected: KeyError with a message containing 'b'
+        # This depends on access_nested_map raising KeyError for this case.
+        # If it raises TypeError, this test case would need to expect TypeError.
+        # The task *specifies* testing for KeyError.
+        ({"a": 1}, ("a", "b"), "b"),
+    ])
+    def test_access_nested_map_exception(
+            self,
+            nested_map: Mapping,
+            path: Sequence,
+            expected_missing_key: str # The key that is expected to be missing/problematic
+    ) -> None:
+        """
+        Tests that `access_nested_map` raises a KeyError for specific invalid paths
+        and verifies that the missing key is part of the exception.
+        """
+        # The context manager self.assertRaises(KeyError) ensures a KeyError is raised.
+        # It also provides the exception instance as `cm.exception`.
+        with self.assertRaises(KeyError) as cm:
+            access_nested_map(nested_map, path)
+        
+        # Check that the exception message is the missing key itself,
+        # as KeyError(key) will have `key` as its first argument.
+        # str(cm.exception) typically yields "'key'".
+        # We are checking if the actual missing key string is what the KeyError reports.
+        self.assertEqual(str(cm.exception), f"'{expected_missing_key}'")
+
+# if __name__ == '__main__':
+#     unittest.main()
