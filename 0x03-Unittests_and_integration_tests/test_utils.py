@@ -3,9 +3,14 @@
 Unit tests for utils.py functions.
 """
 import unittest
-from unittest.mock import patch, Mock, PropertyMock # Added PropertyMock
+from unittest.mock import patch, Mock
 from parameterized import parameterized
-from utils import access_nested_map, get_json, memoize # Added memoize
+# Assuming utils.py is accessible.
+# If in parent dir and running test from current dir:
+# import sys
+# import os
+# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+from utils import access_nested_map, get_json, memoize
 from typing import Mapping, Sequence, Any, Dict
 
 
@@ -18,7 +23,12 @@ class TestAccessNestedMap(unittest.TestCase):
         ({"a": {"b": 2}}, ("a",), {"b": 2}),
         ({"a": {"b": 2}}, ("a", "b"), 2),
     ])
-    def test_access_nested_map(self, nested_map: Mapping, path: Sequence, expected: Any) -> None:
+    def test_access_nested_map(
+            self,
+            nested_map: Mapping,
+            path: Sequence,
+            expected: Any
+            ) -> None:
         """Test access_nested_map with various inputs."""
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
@@ -26,7 +36,12 @@ class TestAccessNestedMap(unittest.TestCase):
         ({}, ("a",), "a"),
         ({"a": 1}, ("a", "b"), "b"),
     ])
-    def test_access_nested_map_exception(self, nested_map: Mapping, path: Sequence, expected_key: str) -> None:
+    def test_access_nested_map_exception(
+            self,
+            nested_map: Mapping,
+            path: Sequence,
+            expected_key: str
+            ) -> None:
         """Test access_nested_map raises KeyError for invalid paths."""
         with self.assertRaises(KeyError) as cm:
             access_nested_map(nested_map, path)
@@ -42,10 +57,16 @@ class TestGetJson(unittest.TestCase):
         ("http://holberton.io", {"payload": False}),
     ])
     @patch('utils.requests.get')
-    def test_get_json(self, test_url: str, test_payload: Dict, mock_get: Mock) -> None:
+    def test_get_json(
+            self,
+            test_url: str,
+            test_payload: Dict,
+            mock_get: Mock
+            ) -> None:
         """Test get_json with mocked HTTP calls."""
         mock_response = Mock()
         mock_response.json.return_value = test_payload
+        # mock_response.raise_for_status = Mock()  # If needed
         mock_get.return_value = mock_response
 
         result = get_json(test_url)
@@ -70,41 +91,28 @@ class TestMemoize(unittest.TestCase):
                 """A sample method that returns a fixed value."""
                 return 42
 
-            @memoize # Apply the memoize decorator
+            @memoize  # Apply the memoize decorator
             def a_property(self) -> int:
                 """A property-like method that calls a_method, memoized."""
                 return self.a_method()
 
-        # Create an instance of the test class
         test_obj = TestClass()
 
-        # Use unittest.mock.patch as a context manager to mock `a_method`
-        # We patch it on the *instance* `test_obj` to ensure we're tracking calls on this specific instance.
-        # Alternatively, patch on the class: 'test_utils.TestMemoize.test_memoize.TestClass.a_method'
-        # But patching on the instance is often cleaner for instance-specific behavior.
-        # However, for patching a method that's part of a class definition used locally
-        # in a test, patching by string path is more robust.
-        # The path needs to be where the object is looked up.
-        # Since TestClass is defined inside test_memoize, the path is tricky.
-        # It's often easier to patch the module if TestClass were defined at module level.
-        # Let's try patching the method on the instance directly for simplicity of scope.
-        # Or, better, let's patch it using the string path to where TestClass is defined.
-        # The path is 'test_utils.TestMemoize.test_memoize.<locals>.TestClass.a_method'
-        # This can be fragile. A common pattern is to define TestClass outside test_memoize if complex.
-
-        # For this task, let's define TestClass at the module level of test_utils.py
-        # if possible, or use a helper if the task insists it's defined inside test_memoize.
-        # Assuming it must be inside test_memoize:
-
-        with patch.object(test_obj, 'a_method', return_value=42) as mock_a_method:
-            # Call a_property twice
+        # Patch 'a_method' on the instance.
+        # Using patch.object is suitable here.
+        with patch.object(
+                test_obj,
+                'a_method',
+                return_value=42
+                ) as mock_a_method:
             result1 = test_obj.a_property()
             result2 = test_obj.a_property()
 
-            # Assertions:
-            # 1. The correct result is returned each time
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
-
-            # 2. a_method (the mocked one) was only called once
             mock_a_method.assert_called_once()
+
+
+# if __name__ == '__main__':
+#    unittest.main()
+# Ensure a single newline character at the end of the file.
