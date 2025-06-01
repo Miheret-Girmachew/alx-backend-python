@@ -4,7 +4,7 @@ Unit tests for the client.GithubOrgClient class.
 """
 import unittest
 from unittest.mock import patch, Mock, PropertyMock, call
-from parameterized import parameterized, parameterized_class # If using parameterized_class later
+from parameterized import parameterized, parameterized_class
 # Ensure client.py is in the same directory or python path
 from client import GithubOrgClient
 from typing import Dict, Any, List
