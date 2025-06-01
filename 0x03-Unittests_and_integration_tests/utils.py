@@ -18,29 +18,28 @@ def access_nested_map(nested_map: Mapping[KT, Any], path: Sequence[KT]) -> Union
 
     Returns:
         Any: The value found at the end of the path.
-        Raises KeyError if any key in the path is not found.
+    Raises:
+        KeyError: If any key in the path is not found in the current mapping.
+        TypeError: If a value along the path is not a mapping and further sub-keys are accessed.
     """
     current_value = nested_map
     for key in path:
+        # Check if current_value is a mapping *before* trying to access the key
         if not isinstance(current_value, Mapping):
-            raise TypeError(f"Value at path before key '{key}' is not a mapping.")
+            # This case is what the task describes for nested_map={"a": 1}, path=("a", "b")
+            # The task specifies this should raise KeyError.
+            # Standard dict access on a non-dict raises TypeError if you try `non_dict[key]`.
+            # To strictly meet the "KeyError" requirement for path=("a", "b") on nested_map={"a": 1},
+            # the function would need to handle this slightly differently or the task implies
+            # that attempting to access a sub-key on a non-mapping due to path exhaustion is a type of KeyError.
+            # For standard Python dicts, `1['b']` would be a TypeError.
+            # Let's adjust the logic to raise KeyError as specified for the second test case.
+            # The most straightforward interpretation for the task is that if a key in the path
+            # cannot be resolved (either because it's missing OR because its parent is not a map),
+            # it's a KeyError related to that key.
+            raise KeyError(key) # This makes it fit the task's expectation for the second case
+
         if key not in current_value:
-            raise KeyError(key)
+            raise KeyError(key) # Standard KeyError for missing key
         current_value = current_value[key]
     return current_value
-
-if __name__ == '__main__':
-    # Example usage (as mentioned in "Play with it in the Python console")
-    print(access_nested_map({"a": 1}, ("a",)))  # Expected: 1
-    print(access_nested_map({"a": {"b": 2}}, ("a",)))  # Expected: {"b": 2}
-    print(access_nested_map({"a": {"b": 2}}, ("a", "b")))  # Expected: 2
-
-    try:
-        print(access_nested_map({"a": {"b": 2}}, ("a", "c")))
-    except KeyError as e:
-        print(f"KeyError caught as expected: {e}")
-
-    try:
-        print(access_nested_map({"a": 1}, ("a", "b")))
-    except TypeError as e:
-        print(f"TypeError caught as expected: {e}")

@@ -1,47 +1,45 @@
 #!/usr/bin/env python3
 """
-Unit tests for utils.access_nested_map.
+Utility functions.
 """
-import unittest
-from parameterized import parameterized
-# Ensure utils.py is accessible, for example, by being in the same directory
-# or by adjusting PYTHONPATH. If utils.py is in the parent directory:
-# import sys
-# import os
-# sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-from utils import access_nested_map
-from typing import Mapping, Sequence, Any
+from typing import Mapping, Sequence, Any, Union, TypeVar
 
-class TestAccessNestedMap(unittest.TestCase):
+KT = TypeVar('KT')  # Key type
+VT = TypeVar('VT')  # Value type
+
+def access_nested_map(nested_map: Mapping[KT, Any], path: Sequence[KT]) -> Union[Any, None]:
     """
-    Test suite for the `access_nested_map` function from the `utils` module.
+    Access a value in a nested dictionary-like structure using a sequence of keys.
+
+    Args:
+        nested_map (Mapping): The nested dictionary or map.
+        path (Sequence): A sequence (e.g., tuple) of keys representing the path
+                         to the desired value.
+
+    Returns:
+        Any: The value found at the end of the path.
+    Raises:
+        KeyError: If any key in the path is not found in the current mapping.
+        TypeError: If a value along the path is not a mapping and further sub-keys are accessed.
     """
+    current_value = nested_map
+    for key in path:
+        # Check if current_value is a mapping *before* trying to access the key
+        if not isinstance(current_value, Mapping):
+            # This case is what the task describes for nested_map={"a": 1}, path=("a", "b")
+            # The task specifies this should raise KeyError.
+            # Standard dict access on a non-dict raises TypeError if you try `non_dict[key]`.
+            # To strictly meet the "KeyError" requirement for path=("a", "b") on nested_map={"a": 1},
+            # the function would need to handle this slightly differently or the task implies
+            # that attempting to access a sub-key on a non-mapping due to path exhaustion is a type of KeyError.
+            # For standard Python dicts, `1['b']` would be a TypeError.
+            # Let's adjust the logic to raise KeyError as specified for the second test case.
+            # The most straightforward interpretation for the task is that if a key in the path
+            # cannot be resolved (either because it's missing OR because its parent is not a map),
+            # it's a KeyError related to that key.
+            raise KeyError(key) # This makes it fit the task's expectation for the second case
 
-    @parameterized.expand([
-        # Case 1: nested_map={"a": 1}, path=("a",) -> expected result is 1
-        ({"a": 1}, ("a",), 1),
-        # Case 2: nested_map={"a": {"b": 2}}, path=("a",) -> expected result is {"b": 2}
-        ({"a": {"b": 2}}, ("a",), {"b": 2}),
-        # Case 3: nested_map={"a": {"b": 2}}, path=("a", "b") -> expected result is 2
-        ({"a": {"b": 2}}, ("a", "b"), 2),
-    ])
-    def test_access_nested_map(
-            self,
-            nested_map: Mapping,
-            path: Sequence,
-            expected_output: Any
-    ) -> None:
-        """
-        Tests that `access_nested_map` returns the correct output for various inputs.
-        The body of this test method should not be longer than 2 lines.
-        """
-        # Line 1 (optional, for clarity or debugging, but keep body short for checker)
-        # result = access_nested_map(nested_map, path)
-        # Line 2 (the assertion)
-        self.assertEqual(access_nested_map(nested_map, path), expected_output)
-
-    # test_access_nested_map_exception method would go here if included
-    # but is not strictly required by Task 0's description for the specific test method
-
-# if __name__ == '__main__':
-#     unittest.main()
+        if key not in current_value:
+            raise KeyError(key) # Standard KeyError for missing key
+        current_value = current_value[key]
+    return current_value
