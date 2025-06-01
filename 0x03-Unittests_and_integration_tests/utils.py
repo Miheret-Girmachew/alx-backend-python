@@ -5,7 +5,26 @@ Utility functions.
 from typing import Mapping, Sequence, Any, Union, TypeVar
 
 KT = TypeVar('KT')  # Key type
-VT = TypeVar('VT')  # Value type
+VT = TypeVar('VT')  # Value type\
+    
+import requests 
+from typing import Dict, Any
+
+
+def get_json(url: str) -> Dict:
+    """
+    Fetches JSON data from a given URL.
+
+    Args:
+        url (str): The URL to fetch JSON from.
+
+    Returns:
+        Dict: The parsed JSON response as a dictionary.
+    """
+    response = requests.get(url)
+    response.raise_for_status() # Raise an exception for HTTP errors (4xx or 5xx)
+    return response.json()
+
 
 def access_nested_map(nested_map: Mapping[KT, Any], path: Sequence[KT]) -> Union[Any, None]:
     """
