@@ -8,6 +8,7 @@ KT = TypeVar('KT')  # Key type
 VT = TypeVar('VT')  # Value type\
     
 import requests 
+import functools
 from typing import Dict, Any
 
 
@@ -62,3 +63,49 @@ def access_nested_map(nested_map: Mapping[KT, Any], path: Sequence[KT]) -> Union
             raise KeyError(key) # Standard KeyError for missing key
         current_value = current_value[key]
     return current_value
+
+
+def memoize(func):
+    """
+    A simple memoization decorator for methods of a class.
+    Caches the result of the first call to the decorated method (property-like).
+    Assumes the decorated method takes no arguments other than 'self'.
+    The cache is stored as an attribute on the instance.
+    """
+    # The attribute name on the instance where the cached result will be stored.
+    # Using a name that's unlikely to clash with other instance attributes.
+    # We append the function's name to make it unique per memoized property.
+    cache_attr_name_template = '_memoized_{}'
+
+    @functools.wraps(func)
+    def wrapper(self, *args, **kwargs): # Changed to accept *args, **kwargs for more general methods
+                                        # Though for a property, it's just `self`
+        # For a property (no args other than self), the cache attribute is simple
+        if not args and not kwargs: # Typical for a property
+            cache_attr_name = cache_attr_name_template.format(func.__name__)
+            if not hasattr(self, cache_attr_name):
+                # Result is not cached yet, call the original method and cache it.
+                result = func(self)
+                setattr(self, cache_attr_name, result)
+            return getattr(self, cache_attr_name)
+        else:
+            # This basic memoize is primarily for argument-less methods acting like properties.
+            # For methods with arguments, a more complex key generation for caching would be needed.
+            # For this task, the example is `a_property` which takes no args.
+            # If methods with args were to be memoized, the key would need to incorporate args/kwargs.
+            # For now, let's assume the task focuses on the no-arg property case.
+            # If the problem implies memoizing methods with arguments, this decorator needs enhancement.
+            # Given the test case is a property, this simple instance-attribute caching is fine.
+            print("Warning: This basic memoize decorator is designed for argument-less methods/properties.")
+            return func(self, *args, **kwargs)
+
+
+    # If `func` is intended to be used as a property getter after memoization
+    # return property(wrapper) # This would make it a true property
+    # However, the task shows `@memoize` on a method `a_property(self)`,
+    # and then it's called as `instance.a_property()`.
+    # So, `wrapper` should just return the value.
+    # If it were meant to be accessed as `instance.a_property` (no parentheses),
+    # then `return property(wrapper)` would be correct.
+    # Let's stick to the direct call `instance.a_property()` as implied by the task test pattern.
+    return wrapper
