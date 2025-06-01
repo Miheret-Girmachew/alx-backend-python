@@ -3,7 +3,7 @@
 GitHub Organization Client
 """
 from utils import get_json, memoize
-from typing import Dict, Any, List, Union # Added Union
+from typing import Dict, Any, List, Union
 
 
 class GithubOrgClient:
@@ -24,8 +24,6 @@ class GithubOrgClient:
     def org(self) -> Dict:
         """
         Fetches and returns the organization's information from GitHub API.
-        Uses the ORG_URL template and calls get_json.
-        The @memoize decorator will cache the result of this method.
         """
         url = self.ORG_URL.format(org=self._org_name)
         org_data = get_json(url)
@@ -35,8 +33,6 @@ class GithubOrgClient:
     def _public_repos_url(self) -> str:
         """
         Returns the URL for the organization's public repositories.
-        This is derived from the 'repos_url' field in the organization's data,
-        obtained by calling the (potentially memoized) self.org() method.
         """
         org_data = self.org()
         return org_data.get("repos_url", "")
@@ -44,28 +40,46 @@ class GithubOrgClient:
     def public_repos(self, license_key: Union[str, None] = None) -> List[str]:
         """
         Fetches and returns a list of public repository names for the org.
-        Optionally filters by license_key.
+        Optionally filters by license_key using the has_license static method.
         """
-        # Get the URL for public repos from the property
-        repos_url = self._public_repos_url # This is a property access
+        repos_url = self._public_repos_url
         if not repos_url:
             return []
 
-        # Fetch the raw repo data from the repos_url
-        # This get_json call will be mocked by the @patch decorator in the test
         all_repos_payload = get_json(repos_url)
-
-        # Extract just the names, and filter by license if requested
         repo_names: List[str] = []
+
         for repo in all_repos_payload:
-            if isinstance(repo, dict): # Ensure repo is a dictionary
-                # License filtering logic
+            if isinstance(repo, dict):
                 if license_key:
-                    repo_license = repo.get("license")
-                    if isinstance(repo_license, dict) and repo_license.get("key") == license_key:
+                    if self.has_license(repo, license_key): # Use the static method
                         repo_names.append(repo.get("name", ""))
-                else: # No license filter, add all repo names
+                else:
                     repo_names.append(repo.get("name", ""))
         return repo_names
 
+    @staticmethod
+    def has_license(repo: Dict[str, Dict], license_key: str) -> bool:
+        """
+        Checks if a repository dictionary contains a specific license key.
+
+        Args:
+            repo (Dict[str, Dict]): The repository dictionary, expected to have
+                                    a 'license' key which is another dictionary
+                                    containing a 'key' for the license.
+            license_key (str): The license key string to check for (e.g., "mit", "apache-2.0").
+
+        Returns:
+            bool: True if the repo has the specified license_key, False otherwise.
+                  Returns False if 'license' is not present or not a dict,
+                  or if 'license' dict does not contain 'key'.
+        """
+        if not isinstance(repo, dict):
+            return False # Or raise TypeError
+        
+        repo_license = repo.get("license")
+        if not isinstance(repo_license, dict):
+            return False
+        
+        return repo_license.get("key") == license_key
 
