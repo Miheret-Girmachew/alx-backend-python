@@ -74,7 +74,9 @@ class TestGetJson(unittest.TestCase):
         mock_get_method = patcher.start()
 
         self.assertEqual(get_json(test_url), test_payload)
-        mock_get_method.assert_called_once_with(test_url)
+        mock_get_method.assert_called_once_with(
+            test_url
+        )
 
         patcher.stop()
 
