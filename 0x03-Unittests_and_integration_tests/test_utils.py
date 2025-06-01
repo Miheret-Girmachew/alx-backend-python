@@ -14,7 +14,8 @@ from parameterized import parameterized
 # or 'python -m unittest 0x03-Unittests_and_integration_tests.test_utils'
 # should handle imports correctly if utils.py is at the root of where Python
 # starts looking (e.g., if 0x03-Unittests_and_integration_tests is a package
-# or utils.py is also in 0x03-Unittests_and_integration_tests, or project root is in PYTHONPATH).
+# or utils.py is also in 0x03-Unittests_and_integration_tests, or project root
+# is in PYTHONPATH).
 # For ALX structure, utils.py is often at the root of the task folder.
 from utils import access_nested_map, get_json, memoize
 from typing import (
@@ -119,16 +120,19 @@ class TestMemoize(unittest.TestCase):
             test_instance = TestClass()
 
             # Call a_property twice
-            result_one = test_instance.a_property()  # First call, should call a_method
-            result_two = test_instance.a_property()  # Second call, should use cache
+            result_one = test_instance.a_property()  # First call, should call
+            # a_method
+            result_two = test_instance.a_property()  # Second call, should use
+            # cache
 
             # Assertions
             self.assertEqual(result_one, 42)
             self.assertEqual(result_two, 42)
-            mock_a_method.assert_called_once()  # a_method should only be called once
-
+            mock_a_method.assert_called_once()  # a_method should only be called
+            # once
 
 # This line is critical for Pycodestyle W292.
 # Ensure your file ends exactly after this line with ONE newline character.
-# Do NOT add if __name__ == '__main__': unittest.main() unless ALX specifically asks for it.
+# Do NOT add if __name__ == '__main__': unittest.main() unless ALX specifically
+# asks for it.
 # Delete any extra blank lines at the end of the file.
