@@ -93,20 +93,26 @@ class TestMemoize(unittest.TestCase):
 
         test_obj = TestClass()
 
-        # Patch 'a_method' on the instance.
-        # This line was likely the E501 culprit if it was too long.
-        with patch.object(test_obj,
-                              'a_method',
-                              return_value=42) as mock_a_method:
+        # This is likely line 84 from your error message if it was:
+        # with patch.object(test_obj, 'a_method', return_value=42) as mock_a_method:
+        # Let's ensure it's broken correctly if it was the source of E501
+        with patch.object(
+                test_obj,
+                'a_method',
+                return_value=42
+                ) as mock_a_method:
             result1 = test_obj.a_property()
             result2 = test_obj.a_property()
 
+            # These lines (around original line 99) must be indented
+            # correctly relative to the 'with' statement.
+            # Pycodestyle E127: "continuation line over-indented for visual indent"
+            # means that if a line is a continuation, its indent should align with
+            # the opening bracket or be 4 spaces more than the previous line.
+            # It's often simpler to ensure these are just standardly indented
+            # within the `with` block.
             self.assertEqual(result1, 42)
             self.assertEqual(result2, 42)
             mock_a_method.assert_called_once()
 
 
-# Ensure there's exactly one newline character at the very end of this file.
-# Do not add `if __name__ == '__main__': unittest.main()` unless specifically
-# allowed or required by ALX for local testing convenience, as their checker
-# usually runs tests via `python -m unittest ...`
