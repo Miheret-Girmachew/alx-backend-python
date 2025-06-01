@@ -16,9 +16,11 @@ class TestGithubOrgClient(unittest.TestCase):
 
     @parameterized.expand([
         ("google",
-         {"login": "google", "id": 1, "repos_url": "google_repos_url_payload"}),
+         {"login": "google", "id": 1,
+          "repos_url": "google_repos_url_payload"}),
         ("abc",
-         {"login": "abc", "id": 2, "repos_url": "abc_repos_url_payload"}),
+         {"login": "abc", "id": 2,
+          "repos_url": "abc_repos_url_payload"}),
     ])
     @patch('client.get_json')
     def test_org(
@@ -73,7 +75,7 @@ class TestGithubOrgClient(unittest.TestCase):
             self,
             repos_payload_from_api: List[Dict],
             expected_repo_names: List[str],
-            mock_get_json: Mock
+            mock_get_json,  # <-- Remove type annotation here
             ) -> None:
         """
         Tests `GithubOrgClient.public_repos` method.
