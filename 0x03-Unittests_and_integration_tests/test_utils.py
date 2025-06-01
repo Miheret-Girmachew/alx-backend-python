@@ -58,17 +58,13 @@ class TestGetJson(unittest.TestCase):
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False}),
     ])
-    # Your version used manual patcher.start/stop.
-    # Reverting to that to match your code, ensuring it's styled.
     def test_get_json(
             self,
             test_url: str,
             test_payload: Dict
-            ) -> None:  # Fixed potential E501
+            ) -> None:
+        """Test that get_json fetches correct value with mocked requests.get."""
         config = {'return_value.json.return_value': test_payload}
-        # Patching 'requests.get' directly as it's imported in utils.py
-        # or 'utils.requests.get' if requests is imported inside utils module
-        # Assuming 'utils.requests.get' for safety if 'requests' is namespaced
         patcher = patch('utils.requests.get', **config)
         mock_get_method = patcher.start()
 
@@ -78,6 +74,9 @@ class TestGetJson(unittest.TestCase):
         )
 
         patcher.stop()
+    test_get_json.__doc__ = (
+        "Test that get_json fetches correct value with mocked requests.get."
+    )
 
 
 class TestMemoize(unittest.TestCase):
