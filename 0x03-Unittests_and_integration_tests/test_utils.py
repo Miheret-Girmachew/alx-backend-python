@@ -28,7 +28,8 @@ class TestAccessNestedMap(unittest.TestCase):
             expected: Any
             ) -> None:
         """
-        Test that `access_nested_map` returns the correct value for valid inputs.
+        Test that `access_nested_map` returns the correct value for valid
+        inputs.
         """
         self.assertEqual(access_nested_map(nested_map, path), expected)
 
@@ -111,10 +112,10 @@ class TestMemoize(unittest.TestCase):
             # might have been reported. Ensure they are indented correctly.
             # Standard 4-space indent from the 'with' line.
             result_one = test_instance.a_property()  # First call
-            result_two = test_instance.a_property()  # Second call (should be cached)
+            result_two = test_instance.a_property()  # Second call
+            # (should be cached)
 
             self.assertEqual(result_one, 42)
             self.assertEqual(result_two, 42)
             mock_a_method.assert_called_once()
-
 
