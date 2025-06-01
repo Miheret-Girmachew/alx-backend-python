@@ -6,10 +6,19 @@ import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
 
-# Assuming utils.py is in the same dir or PYTHONPATH correctly set
+# Assuming utils.py is in the same dir or PYTHONPATH correctly set.
+# If utils.py is in the parent directory of 0x03-Unittests_and_integration_tests
+# and you are running tests from 0x03-Unittests_and_integration_tests:
+# You might need to adjust sys.path if 'from utils import ...' fails.
+# However, standard 'python -m unittest test_utils.py' from the project root
+# or 'python -m unittest 0x03-Unittests_and_integration_tests.test_utils'
+# should handle imports correctly if utils.py is at the root of where Python
+# starts looking (e.g., if 0x03-Unittests_and_integration_tests is a package
+# or utils.py is also in 0x03-Unittests_and_integration_tests, or project root is in PYTHONPATH).
+# For ALX structure, utils.py is often at the root of the task folder.
 from utils import access_nested_map, get_json, memoize
-from typing import (  # Break long import for E501
-    Mapping, Sequence, Any, Dict, List  # Added List back from your code
+from typing import (
+    Mapping, Sequence, Any, Dict, List
 )
 
 
@@ -23,7 +32,7 @@ class TestAccessNestedMap(unittest.TestCase):
     ])
     def test_access_nested_map(
             self,
-            nested_map: Dict[str, Any],  # Using Dict/List from your code
+            nested_map: Dict[str, Any],
             path: List[str],
             expected: Any
             ) -> None:
@@ -44,7 +53,8 @@ class TestAccessNestedMap(unittest.TestCase):
             expected_key: str
             ) -> None:
         """
-        Test `access_nested_map` raises KeyError for invalid paths.
+        Test `access_nested_map` raises KeyError for invalid paths and checks
+        the exception message.
         """
         with self.assertRaises(KeyError) as cm:
             access_nested_map(nested_map, path)
@@ -52,7 +62,7 @@ class TestAccessNestedMap(unittest.TestCase):
 
 
 class TestGetJson(unittest.TestCase):
-    """Unit test for the `get_json` function."""  # Fixed potential E501
+    """Unit test for the `get_json` function."""
 
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
@@ -64,23 +74,22 @@ class TestGetJson(unittest.TestCase):
             test_payload: Dict
             ) -> None:
         """Test that get_json fetches correct value with mocked requests.get."""
+        # Configuration for the mock object's return_value.json() method
         config = {'return_value.json.return_value': test_payload}
-        patcher = patch('utils.requests.get', **config)
-        mock_get_method = patcher.start()
 
-        self.assertEqual(get_json(test_url), test_payload)
-        mock_get_method.assert_called_once_with(
-            test_url
-        )
+        # Use patch as a context manager for cleaner start/stop
+        # Patch 'utils.requests.get' as get_json in utils.py calls requests.get
+        with patch('utils.requests.get', **config) as mock_get_method:
+            # Call the function under test
+            self.assertEqual(get_json(test_url), test_payload)
 
-        patcher.stop()
-    test_get_json.__doc__ = (
-        "Test that get_json fetches correct value with mocked requests.get."
-    )
+            # Verify that requests.get was called once with the test_url
+            mock_get_method.assert_called_once_with(test_url)
+        # No manual patcher.stop() needed with 'with' statement
 
 
 class TestMemoize(unittest.TestCase):
-    """Unit tests for the `memoize` decorator."""  # Fixed potential E501
+    """Unit tests for the `memoize` decorator."""
 
     def test_memoize(self) -> None:
         """Test that memoize caches the result of a method call."""
@@ -99,22 +108,27 @@ class TestMemoize(unittest.TestCase):
                 """
                 return self.a_method()
 
-        # This is where your line 84 (E501) might have been.
-        # Breaking 'with patch.object(...)' for style.
+        # Patch 'a_method' on the TestClass.
+        # This means any instance of TestClass created inside this 'with'
+        # block will have its 'a_method' mocked.
         with patch.object(
                 TestClass,
                 "a_method",
-                return_value=42  # Mocked return for a_method
+                return_value=42  # Ensure the mock returns the expected value
                 ) as mock_a_method:
             test_instance = TestClass()
 
-            # These calls and assertions are where line 99 (E127) and 101 (E124)
-            # might have been reported. Ensure they are indented correctly.
-            # Standard 4-space indent from the 'with' line.
-            result_one = test_instance.a_property()  # First call
-            result_two = test_instance.a_property()  # Second call
-            # (should be cached)
+            # Call a_property twice
+            result_one = test_instance.a_property()  # First call, should call a_method
+            result_two = test_instance.a_property()  # Second call, should use cache
 
+            # Assertions
             self.assertEqual(result_one, 42)
             self.assertEqual(result_two, 42)
-            mock_a_method.assert_called_once()
+            mock_a_method.assert_called_once()  # a_method should only be called once
+
+
+# This line is critical for Pycodestyle W292.
+# Ensure your file ends exactly after this line with ONE newline character.
+# Do NOT add if __name__ == '__main__': unittest.main() unless ALX specifically asks for it.
+# Delete any extra blank lines at the end of the file.
