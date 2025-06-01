@@ -7,7 +7,7 @@ from unittest.mock import patch, Mock
 from parameterized import parameterized
 
 # Assuming utils.py is in the same dir or PYTHONPATH correctly set.
-# If utils.py is in the parent directory of 0x03-Unittests_and_integration_tests
+# If utils.py in the parent directory of 0x03-Unittests_and_integration_tests
 # and you are running tests from 0x03-Unittests_and_integration_tests:
 # You might need to adjust sys.path if 'from utils import ...' fails.
 # However, standard 'python -m unittest test_utils.py' from the project root
@@ -128,11 +128,8 @@ class TestMemoize(unittest.TestCase):
             # Assertions
             self.assertEqual(result_one, 42)
             self.assertEqual(result_two, 42)
-            mock_a_method.assert_called_once()  # a_method should only be called
-            # once
-
-# This line is critical for Pycodestyle W292.
-# Ensure your file ends exactly after this line with ONE newline character.
-# Do NOT add if __name__ == '__main__': unittest.main() unless ALX specifically
-# asks for it.
-# Delete any extra blank lines at the end of the file.
+            mock_a_method.assert_called_once() 
+            
+            
+if __name__ == '__main__':
+    unittest.main()
