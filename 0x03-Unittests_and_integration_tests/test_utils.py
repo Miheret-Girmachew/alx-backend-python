@@ -6,10 +6,9 @@ import unittest
 from unittest.mock import patch, Mock
 from parameterized import parameterized
 
-# Assuming utils.py is in the same dir or PYTHONPATH correctly set
 from utils import access_nested_map, get_json, memoize
-from typing import (  # Break long import for E501
-    Mapping, Sequence, Any, Dict, List  # Added List back from your code
+from typing import ( 
+    Mapping, Sequence, Any, Dict, List 
 )
 
 
@@ -23,7 +22,7 @@ class TestAccessNestedMap(unittest.TestCase):
     ])
     def test_access_nested_map(
             self,
-            nested_map: Dict[str, Any],  # Using Dict/List from your code
+            nested_map: Dict[str, Any],  
             path: List[str],
             expected: Any
             ) -> None:
@@ -52,24 +51,18 @@ class TestAccessNestedMap(unittest.TestCase):
 
 
 class TestGetJson(unittest.TestCase):
-    """Unit test for the `get_json` function."""  # Fixed potential E501
+    """Unit test for the `get_json` function.""" 
 
     @parameterized.expand([
         ("http://example.com", {"payload": True}),
         ("http://holberton.io", {"payload": False}),
     ])
-    # Your version used manual patcher.start/stop.
-    # Reverting to that to match your code, ensuring it's styled.
     def test_get_json(
             self,
             test_url: str,
             test_payload: Dict
-            ) -> None:  # Fixed potential E501
-        """Test that get_json fetches correct value with mocked requests.get."""
+            ) -> None: 
         config = {'return_value.json.return_value': test_payload}
-        # Patching 'requests.get' directly as it's imported in utils.py
-        # or 'utils.requests.get' if requests is imported inside utils module
-        # Assuming 'utils.requests.get' for safety if 'requests' is namespaced
         patcher = patch('utils.requests.get', **config)
         mock_get_method = patcher.start()
 
@@ -82,8 +75,6 @@ class TestGetJson(unittest.TestCase):
 
 
 class TestMemoize(unittest.TestCase):
-    """Unit tests for the `memoize` decorator."""  # Fixed potential E501
-
     def test_memoize(self) -> None:
         """Test that memoize caches the result of a method call."""
         class TestClass:
@@ -100,23 +91,14 @@ class TestMemoize(unittest.TestCase):
                 This call should be memoized.
                 """
                 return self.a_method()
-
-        # This is where your line 84 (E501) might have been.
-        # Breaking 'with patch.object(...)' for style.
         with patch.object(
                 TestClass,
                 "a_method",
-                return_value=42  # Mocked return for a_method
+                return_value=42  
                 ) as mock_a_method:
             test_instance = TestClass()
-
-            # These calls and assertions are where line 99 (E127) and 101 (E124)
-            # might have been reported. Ensure they are indented correctly.
-            # Standard 4-space indent from the 'with' line.
-            result_one = test_instance.a_property()  # First call
-            result_two = test_instance.a_property()  # Second call
-            # (should be cached)
-
+            result_one = test_instance.a_property()  
+            result_two = test_instance.a_property()  
             self.assertEqual(result_one, 42)
             self.assertEqual(result_two, 42)
             mock_a_method.assert_called_once()
