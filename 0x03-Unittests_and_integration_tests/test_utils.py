@@ -74,7 +74,7 @@ class TestGetJson(unittest.TestCase):
             test_url: str,
             test_payload: Dict
             ) -> None:
-        """Test that get_json fetches correct value with mocked requests.get."""
+        """Test that get_json fetches correct value mocked requests.get."""
         # Configuration for the mock object's return_value.json() method
         config = {'return_value.json.return_value': test_payload}
 
@@ -128,8 +128,7 @@ class TestMemoize(unittest.TestCase):
             # Assertions
             self.assertEqual(result_one, 42)
             self.assertEqual(result_two, 42)
-            mock_a_method.assert_called_once() 
-            
-            
+            mock_a_method.assert_called_once()
 if __name__ == '__main__':
     unittest.main()
+    
