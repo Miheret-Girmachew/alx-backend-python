@@ -1,5 +1,3 @@
-# messaging_app/settings.py
-
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -10,7 +8,7 @@ INSTALLED_APPS = [
 
     # 3rd Party Apps
     'rest_framework',
-    'rest_framework_simplejwt',  # <-- Add this line
+    'rest_framework_simplejwt',  
 
     # Local Apps
     'chats',
@@ -19,5 +17,10 @@ INSTALLED_APPS = [
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
     )
 }
