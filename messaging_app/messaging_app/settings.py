@@ -14,6 +14,8 @@ INSTALLED_APPS = [
     'chats',
 ]
 
+# messaging_app/messaging_app/settings.py
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
