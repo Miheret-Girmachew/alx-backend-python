@@ -1,42 +1,50 @@
+# messaging_app/chats/permissions.py
 
 from rest_framework import permissions
+from .models import Conversation, Message
 
 class IsParticipantOfConversation(permissions.BasePermission):
     """
-    Custom permission to only allow participants of a conversation to interact with it.
-    This covers sending, viewing, updating, and deleting messages.
+    Custom permission that checks:
+    1. If the user is authenticated.
+    2. If the user is a participant of the conversation for any request method.
     """
 
-    def has_object_permission(self, request, view, obj):
-        """
-        Check if the user is a participant of the conversation related to the object.
-        'obj' can be a Conversation or a Message instance.
-        """
-
-        if obj.__class__.__name__ == 'Conversation':
-            return request.user in obj.participants.all()
-
-        if hasattr(obj, 'conversation'):
-            return request.user in obj.conversation.participants.all()
-
-        return False
+    def _is_participant(self, user, conversation):
+        """Helper method to check for participation."""
+        return user in conversation.participants.all()
 
     def has_permission(self, request, view):
-        """
-        Check if the user can send a message to the specified conversation.
-        """
+
+        if not request.user or not request.user.is_authenticated:
+            return False
 
         if request.method == 'POST':
-            conversation_pk = view.kwargs.get('conversation_pk')
-            if not conversation_pk:
+            conversation_id = view.kwargs.get('conversation_id')
+            if not conversation_id:
                 return False
-
-            from .models import Conversation
+            
             try:
-                conversation = Conversation.objects.get(pk=conversation_pk)
-                return request.user in conversation.participants.all()
+                conversation = Conversation.objects.get(pk=conversation_id)
+                return self._is_participant(request.user, conversation)
             except Conversation.DoesNotExist:
                 return False
         
-
         return True
+
+    def has_object_permission(self, request, view, obj):
+        if not request.user or not request.user.is_authenticated:
+            return False
+
+        edit_methods = ["PUT", "PATCH", "DELETE"]
+
+        conversation = None
+        if isinstance(obj, Message):
+            conversation = obj.conversation
+        elif isinstance(obj, Conversation):
+            conversation = obj
+        
+        if not conversation:
+            return False
+
+        return self._is_participant(request.user, conversation)
