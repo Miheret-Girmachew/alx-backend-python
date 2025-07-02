@@ -1,4 +1,4 @@
-# project_name/settings.py
+# Django-Middleware-0x03/messaging_app/settings.py
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -9,6 +9,5 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     
-    # Add your new middleware here
     'chats.middleware.RequestLoggingMiddleware', 
 ]
