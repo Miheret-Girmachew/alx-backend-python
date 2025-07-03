@@ -3,13 +3,9 @@
 import logging
 from datetime import datetime
 
-# Set up a basic logger that writes to a file named 'requests.log'
-# This will create the file in your project's root directory.
-logging.basicConfig(
-    filename='requests.log',
-    level=logging.INFO,
-    format='%(message)s'  # Log only the message we provide
-)
+# Get a logger instance for this module.
+# The configuration for this logger will be defined in settings.py
+logger = logging.getLogger(__name__)
 
 class RequestLoggingMiddleware:
     """
@@ -26,20 +22,11 @@ class RequestLoggingMiddleware:
         """
         Code to be executed for each request before the view is called.
         """
-        # Get the user. If the user is not authenticated, it will be an 'AnonymousUser'.
-        # We use str() to get a clean string representation for both cases.
         user = str(request.user)
-        
-        # This is the exact log format required by the instructions.
         log_message = f"{datetime.now()} - User: {user} - Path: {request.path}"
         
-        # Use the configured logger to write the message to the file.
-        logging.info(log_message)
+        # Use the specific logger instance to write the message.
+        logger.info(log_message)
 
-        # This passes the request to the next middleware or to the view.
         response = self.get_response(request)
-
-        # Code to be executed for each request/response after the view is called.
-        # We don't need any for this task.
-
         return response
