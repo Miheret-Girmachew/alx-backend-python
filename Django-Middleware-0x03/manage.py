@@ -6,8 +6,8 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    # IMPORTANT: This line must point to YOUR settings file.
-    # Yours is 'messaging_app.settings'.
+    # This line is the KEY. It must match your project's config folder name.
+    # Your folder is named "messaging_app", so this is correct.
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'messaging_app.settings')
     try:
         from django.core.management import execute_from_command_line
