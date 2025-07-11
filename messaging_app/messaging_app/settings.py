@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third-party apps
     'rest_framework',
+    'django_filters',
     'rest_framework_simplejwt',
     
     # My apps
@@ -132,19 +133,19 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 1. Try JWT authentication first (for APIs)
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-        
-        # 2. Then try Session authentication (for the Browsable API)
         'rest_framework.authentication.SessionAuthentication',
-
-        # 3. Finally, try Basic authentication (for simple clients/testing)
-        # This is the line the checker is looking for.
         'rest_framework.authentication.BasicAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # All endpoints require authentication by default
         'rest_framework.permissions.IsAuthenticated',
+    ],
+    # --- Add this new section for Pagination and Filtering ---
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20, # Default page size for all lists
+    
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
     ]
 }
 
