@@ -125,3 +125,18 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        # This allows authentication via user sessions, which is useful
+        # for logging into the browsable API.
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        # This makes all endpoints require authentication by default.
+        # It's a good security practice. You can override this on a
+        # per-view basis if you need public endpoints.
+        'rest_framework.permissions.IsAuthenticated',
+    ]
+}
