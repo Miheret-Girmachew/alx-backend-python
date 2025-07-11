@@ -1,21 +1,32 @@
+# messaging_app/chats/urls.py
 
 from django.urls import path, include
-from rest_framework import routers
+from rest_framework_nested import routers
 from .views import UserRegistrationView, ConversationViewSet, MessageViewSet
 
-# Create a router and register our viewsets with it.
+# Create the main router for the top-level resource: Conversations
 router = routers.DefaultRouter()
-# The 'conversations' string is the URL prefix for the ConversationViewSet.
 router.register(r'conversations', ConversationViewSet, basename='conversation')
-# The 'messages' string is the URL prefix for the MessageViewSet.
-router.register(r'messages', MessageViewSet, basename='message')
 
-# The API URLs are now determined automatically by the router.
-# In addition, we have to manually add the URL for our UserRegistrationView.
+# Create a nested router for the child resource: Messages
+# The first argument is the parent router.
+# The second argument is the URL prefix of the parent ('conversations').
+# The third is a lookup name for the parent's primary key.
+conversations_router = routers.NestedDefaultRouter(router, r'conversations', lookup='conversation')
+
+# Register the MessageViewSet with the nested router.
+# It will now generate URLs like: /conversations/{conversation_pk}/messages/
+conversations_router.register(r'messages', MessageViewSet, basename='conversation-messages')
+
+# We no longer need a top-level '/messages/' route, so it has been removed.
+
 urlpatterns = [
-    # The URL for user registration
+    # Manually add the user registration URL
     path('register/', UserRegistrationView.as_view(), name='user-register'),
     
-    # The URLs for the ViewSets are included from the router
+    # Include URLs from the main router
     path('', include(router.urls)),
+    
+    # Include URLs from the nested router
+    path('', include(conversations_router.urls)),
 ]

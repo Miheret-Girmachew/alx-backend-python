@@ -72,21 +72,18 @@ class MessageViewSet(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         """
         Custom logic that runs when a new message is created (POST request).
+        The conversation ID is now retrieved from the URL kwargs.
         """
-        # Get the conversation from the request data
-        conversation_id = self.request.data.get('conversation')
+        # The nested router provides the parent's PK in the URL kwargs.
+        conversation_id = self.kwargs.get('conversation_pk')
         try:
             conversation = Conversation.objects.get(conversation_id=conversation_id)
         except Conversation.DoesNotExist:
-            # If the conversation doesn't exist, return an error.
             raise PermissionDenied("Conversation not found.")
 
         # Check if the user is a participant of the conversation.
-        # This prevents users from sending messages to conversations they are not in.
         if self.request.user not in conversation.participants.all():
             raise PermissionDenied("You are not a participant of this conversation.")
 
-        # If all checks pass, save the message.
-        # We explicitly set the sender to be the currently authenticated user.
-        # This prevents a user from spoofing messages from someone else.
+        # Save the message with the sender and the conversation from the URL.
         serializer.save(sender=self.request.user, conversation=conversation)

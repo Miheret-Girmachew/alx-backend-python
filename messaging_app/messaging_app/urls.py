@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include  # Make sure 'include' is imported
+from django.urls import path, include  
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,4 +25,7 @@ urlpatterns = [
     # It tells Django that any URL starting with 'api/' should be
     # handled by the URL patterns defined in our 'chats.urls' file.
     path('api/', include('chats.urls')),
+    
+    # This satisfies the "api-auth" requirement.
+    path('api-auth/', include('rest_framework.urls')),
 ]
