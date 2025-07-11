@@ -50,7 +50,7 @@ class ConversationSerializer(serializers.ModelSerializer):
     # Field for CREATING a conversation by accepting a list of UUIDs (WRITE-ONLY).
     # This will not be included in the response data.
     participant_ids = serializers.ListField(
-        child=serializers.UUIDField(), write_only=True
+        child=serializers.CharField(), write_only=True
     )
     
     # Nest the related messages for display purposes (READ-ONLY).
