@@ -5,6 +5,7 @@ from rest_framework.exceptions import PermissionDenied
 from django.contrib.auth import get_user_model
 from .models import Conversation, Message
 from .serializers import UserSerializer, ConversationSerializer, MessageSerializer
+from .permissions import IsParticipantOfConversation
 
 User = get_user_model()
 
@@ -29,7 +30,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     Provides `list`, `create`, `retrieve`, `update`, `partial_update`, and `destroy` actions.
     """
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated, IsParticipant] 
+    permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation] 
     def get_queryset(self):
         """
         This is a critical security and privacy step.
@@ -57,8 +58,10 @@ class MessageViewSet(viewsets.ModelViewSet):
     A ViewSet for sending messages. We only implement the 'create' action.
     """
     serializer_class = MessageSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
+    permission_classes = [permissions.IsAuthenticated, IsParticipantOfConversation]
+    
+    http_method_names = ['post', 'head', 'options']
+     
     def get_queryset(self):
         """
         This method is required by ModelViewSet, but we will primarily be creating
@@ -66,23 +69,17 @@ class MessageViewSet(viewsets.ModelViewSet):
         Listing is handled by the nested serializer in ConversationViewSet.
         We'll filter to only messages sent by the user for completeness.
         """
-        return Message.objects.filter(sender=self.request.user)
+        return Message.objects.none()
     
     def perform_create(self, serializer):
         """
-        Custom logic that runs when a new message is created (POST request).
-        The conversation ID is now retrieved from the URL kwargs.
+        The permission class now handles the security checks.
+        This method just needs to associate the message with the correct
+        sender and conversation.
         """
-        # The nested router provides the parent's PK in the URL kwargs.
         conversation_id = self.kwargs.get('conversation_pk')
-        try:
-            conversation = Conversation.objects.get(conversation_id=conversation_id)
-        except Conversation.DoesNotExist:
-            raise PermissionDenied("Conversation not found.")
+        conversation = Conversation.objects.get(pk=conversation_id)
 
-        # Check if the user is a participant of the conversation.
-        if self.request.user not in conversation.participants.all():
-            raise PermissionDenied("You are not a participant of this conversation.")
-
-        # Save the message with the sender and the conversation from the URL.
+        # The permission class has already verified the user can post here.
+        # We just set the sender to the authenticated user.
         serializer.save(sender=self.request.user, conversation=conversation)
