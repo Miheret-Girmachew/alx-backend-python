@@ -1,0 +1,1 @@
+# This file can be used for custom authentication backends if needed in the future.

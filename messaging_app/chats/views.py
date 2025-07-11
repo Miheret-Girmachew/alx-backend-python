@@ -29,8 +29,7 @@ class ConversationViewSet(viewsets.ModelViewSet):
     Provides `list`, `create`, `retrieve`, `update`, `partial_update`, and `destroy` actions.
     """
     serializer_class = ConversationSerializer
-    permission_classes = [permissions.IsAuthenticated]
-
+    permission_classes = [permissions.IsAuthenticated, IsParticipant] 
     def get_queryset(self):
         """
         This is a critical security and privacy step.

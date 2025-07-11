@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     # Third-party apps
     'rest_framework',
+    'rest_framework_simplejwt',
     
     # My apps
     'chats',
@@ -129,18 +130,16 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        # This allows authentication via user sessions, which is useful
-        # for logging into the browsable API.
+        # Use JWT for primary authentication
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+        # SessionAuth is kept for the browsable API
         'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
-        # This makes all endpoints require authentication by default.
-        # It's a good security practice. You can override this on a
-        # per-view basis if you need public endpoints.
+        # All endpoints require authentication by default
         'rest_framework.permissions.IsAuthenticated',
     ]
 }
-
 
 # Tell Django to use our custom User model for authentication.
 # The format is 'app_name.ModelName'.

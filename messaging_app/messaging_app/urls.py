@@ -1,31 +1,23 @@
-"""
-URL configuration for messaging_app project.
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/5.2/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path('', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path('', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.urls import include, path
-    2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
-"""
+# messaging_app/messaging_app/urls.py
 
 from django.contrib import admin
-from django.urls import path, include  
+from django.urls import path, include
+# Import the views provided by simplejwt
+from rest_framework_simplejwt.views import (
+    TokenObtainPairView,
+    TokenRefreshView,
+)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     
-    # This is the line that satisfies the checker.
-    # It tells Django that any URL starting with 'api/' should be
-    # handled by the URL patterns defined in our 'chats.urls' file.
+    # Your app's API endpoints
     path('api/', include('chats.urls')),
     
-    # This satisfies the "api-auth" requirement.
+    # DRF login/logout views for the Browsable API
     path('api-auth/', include('rest_framework.urls')),
+
+    # JWT Token Endpoints
+    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]
