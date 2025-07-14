@@ -1,3 +1,4 @@
+# Django-Middleware-0x03/messaging_app/settings.py
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -8,6 +9,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
+    # --- YOUR CUSTOM MIDDLEWARE IN ORDER ---
     
     # 1. First, restrict access by time.
     'chats.middleware.RestrictAccessByTimeMiddleware',

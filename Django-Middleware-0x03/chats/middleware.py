@@ -1,8 +1,10 @@
+# Django-Middleware-0x03/chats/middleware.py
 
 import time
 from datetime import datetime, time
 from django.http import HttpResponseForbidden
 
+# This dictionary is a simple in-memory store for rate limiting.
 ip_requests = {}
 
 
