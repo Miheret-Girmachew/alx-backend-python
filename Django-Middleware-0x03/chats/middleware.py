@@ -1,17 +1,12 @@
-# Django-Middleware-0x03/chats/middleware.py
+# chats/middleware.py
 
 import logging
 from datetime import datetime
 
-# Get a logger instance for this module.
-# The configuration for this logger will be defined in settings.py
-logger = logging.getLogger(__name__)
+# Get the logger we will configure in settings.py
+logger = logging.getLogger('request_logger')
 
 class RequestLoggingMiddleware:
-    """
-    This middleware logs user requests to the 'requests.log' file.
-    It captures the timestamp, user, and the request path.
-    """
     def __init__(self, get_response):
         """
         One-time configuration and initialization.
@@ -22,11 +17,18 @@ class RequestLoggingMiddleware:
         """
         Code to be executed for each request before the view is called.
         """
-        user = str(request.user)
+        # Get user information. If not logged in, it will be an AnonymousUser.
+        user = request.user if request.user.is_authenticated else 'Anonymous'
+        
+        # Format the log message as required
         log_message = f"{datetime.now()} - User: {user} - Path: {request.path}"
         
-        # Use the specific logger instance to write the message.
+        # Log the message using our configured logger
         logger.info(log_message)
 
+        # Pass the request to the next middleware or view
         response = self.get_response(request)
+
+        # Code to be executed for each response after the view is called (optional)
+
         return response
