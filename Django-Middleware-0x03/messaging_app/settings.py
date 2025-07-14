@@ -1,4 +1,3 @@
-# messaging_app/settings.py
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -9,14 +8,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # --- YOUR CUSTOM MIDDLEWARE ---
     
-    # 1. Check time-based access.
+    # 1. First, restrict access by time.
     'chats.middleware.RestrictAccessByTimeMiddleware',
     
-    # 2. Check rate-limiting for message sending.
+    # 2. Next, check for rate-limiting.
     'chats.middleware.OffensiveLanguageMiddleware',
     
-    # 3. Log the request if it passed all checks.
+    # 3. Finally, if the request is allowed, log it.
     'chats.middleware.RequestLoggingMiddleware', 
 ]
