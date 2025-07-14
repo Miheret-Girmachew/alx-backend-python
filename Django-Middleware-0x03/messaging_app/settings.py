@@ -1,4 +1,4 @@
-# Django-Middleware-0x03/messaging_app/settings.py
+# messaging_app/settings.py
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -9,13 +9,14 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-    # The order matters. Django processes them from top to bottom.
+    # --- YOUR CUSTOM MIDDLEWARE ---
     
-    # 1. First, check if access is allowed based on time.
-    #    This runs early to deny access quickly if needed.
+    # 1. Check time-based access.
     'chats.middleware.RestrictAccessByTimeMiddleware',
     
-    # 2. If access is allowed, then log the request.
-    #    This ensures even denied requests could be logged if we wanted.
+    # 2. Check rate-limiting for message sending.
+    'chats.middleware.OffensiveLanguageMiddleware',
+    
+    # 3. Log the request if it passed all checks.
     'chats.middleware.RequestLoggingMiddleware', 
 ]
