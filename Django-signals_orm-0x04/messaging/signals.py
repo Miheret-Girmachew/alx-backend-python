@@ -69,3 +69,15 @@ def delete_user_related_data(sender, instance, **kwargs):
     # MessageHistory.objects.filter(edited_by=user_to_delete).delete()
     
     print(f"Signal triggered: Cleaned up data for deleted user '{user_to_delete.username}'.")
+    
+class UnreadMessageSerializer(serializers.ModelSerializer):
+    """
+    A simple serializer for displaying key info about unread messages.
+    """
+    # We can add the sender's username for context.
+    sender_username = serializers.CharField(source='sender.username', read_only=True)
+
+    class Meta:
+        model = Message
+        fields = ['id', 'sender_username', 'content', 'timestamp']
+        

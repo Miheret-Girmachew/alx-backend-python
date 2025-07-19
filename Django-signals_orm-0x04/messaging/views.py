@@ -7,7 +7,7 @@ from rest_framework import status
 from django.db import models
 
 from .models import Message
-from .serializers import ThreadedMessageSerializer
+from .serializers import ThreadedMessageSerializer, UnreadMessageSerializer
 
 # ... (keep your delete_user view here) ...
 @api_view(['POST'])
@@ -51,4 +51,27 @@ def threaded_conversation_view(request, user1_id, user2_id):
     top_level_messages = [msg for msg in all_messages if msg.parent_message_id is None]
     
     serializer = ThreadedMessageSerializer(top_level_messages, many=True)
+    return Response(serializer.data)
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def unread_messages_view(request):
+    """
+    Retrieves a list of all unread messages for the currently logged-in user,
+    using a custom model manager and optimizing with .only().
+    """
+    user = request.user
+
+    # --- USING THE CUSTOM MANAGER AND .only() ---
+    # 1. Use our custom manager to get the base queryset.
+    # 2. Use our custom method to filter for the specific user.
+    # 3. Use .only() to fetch only the fields needed by the serializer.
+    #    This is a performance optimization.
+    unread_messages = Message.unread.for_user(user).only(
+        'id', 'content', 'timestamp', 'sender_id'
+    ).select_related('sender') # select_related is still needed to get sender_username efficiently
+
+    # Serialize the data.
+    serializer = UnreadMessageSerializer(unread_messages, many=True)
     return Response(serializer.data)
