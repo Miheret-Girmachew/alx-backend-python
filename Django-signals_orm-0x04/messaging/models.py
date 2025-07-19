@@ -2,25 +2,10 @@
 
 from django.db import models
 from django.contrib.auth.models import User
-
-# --- DEFINE THE MANAGER FIRST ---
-class UnreadMessagesManager(models.Manager):
-    """
-    A custom model manager to fetch unread messages.
-    """
-    def get_queryset(self):
-        # The base queryset for this manager will always be unread messages.
-        return super().get_queryset().filter(read=False)
-
-    def for_user(self, user):
-        """
-        A custom method to chain onto the manager for more specific queries.
-        e.g., Message.unread.for_user(some_user)
-        """
-        return self.get_queryset().filter(receiver=user)
+# --- IMPORT THE MANAGER FROM ITS NEW FILE ---
+from .managers import UnreadMessagesManager
 
 
-# --- NOW DEFINE THE MODEL THAT USES THE MANAGER ---
 class Message(models.Model):
     """
     Represents a direct message from one user to another, with support for threading.
@@ -34,6 +19,7 @@ class Message(models.Model):
     parent_message = models.ForeignKey(
         'self', on_delete=models.CASCADE, null=True, blank=True, related_name='replies'
     )
+    # The new 'read' field for this task.
     read = models.BooleanField(default=False)
 
     # Attach the managers to the model.
@@ -44,9 +30,10 @@ class Message(models.Model):
         return f"From {self.sender.username} to {self.receiver.username} at {self.timestamp.strftime('%Y-%m-%d %H:%M')}"
 
 
-# --- The rest of the models can come after ---
 class MessageHistory(models.Model):
-    # ... (no changes needed)
+    """
+    Stores the history of edits for a single message.
+    """
     original_message = models.ForeignKey(Message, on_delete=models.CASCADE, related_name='history')
     old_content = models.TextField()
     edited_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='edited_messages')
@@ -57,7 +44,9 @@ class MessageHistory(models.Model):
 
 
 class Notification(models.Model):
-    # ... (no changes needed)
+    """
+    Represents a notification for a user about a new message.
+    """
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     message = models.ForeignKey(Message, on_delete=models.CASCADE)
     is_read = models.BooleanField(default=False)
