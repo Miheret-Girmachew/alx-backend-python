@@ -1,9 +1,9 @@
-# messaging/models.py
 
 from django.db import models
 from django.contrib.auth.models import User
 # --- IMPORT THE MANAGER FROM ITS NEW FILE ---
 from .managers import UnreadMessagesManager
+
 
 
 class Message(models.Model):
